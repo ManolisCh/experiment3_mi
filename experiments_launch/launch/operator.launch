@@ -32,7 +32,7 @@
     args="-d $(find experiments_launch)/rviz_cfg/rviz_cfg.rviz"/> 
 
 <!-- Robot Model -->
-<include file="$(find p2os_urdf)/launch/pioneer3dx_urdf.launch"/>
+<!--include file="$(find p2os_urdf)/launch/pioneer3dx_urdf.launch"/-->
 
 <!-- Play sounds -->
 <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/> 
