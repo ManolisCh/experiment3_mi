@@ -1,5 +1,5 @@
 <launch>
-
+<!-- Launch file for use on OCU. Runs the nodes on operator's computer -->
 
 <!-- joy node -->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
@@ -19,10 +19,8 @@
 <!-- In xbox controller Y =  teleop , A = auto , LB = stop (in any case) -->
 <node pkg="variable_autonomy" type="control_mixer_node" name="control_mixer" output="screen"/>
 
-<!-- Hector trajectory serve
-r for keeping history and visualizing of all the paths visited -->
+<!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
 <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
-
 
 <!-- mode, logging and status visualising nodes -->
 <!--+++++++++++++++++++++++++++++++++++++++++++++-->
@@ -30,17 +28,14 @@ r for keeping history and visualizing of all the paths visited -->
 <node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
 <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>>
 
-<!-- RVIZ Interface -->
 <node pkg="rviz" type="rviz" name="rviz" 
-    args="-d $(find experiments_launch)/rviz_cfg/rviz_cfg.rviz"/>
+    args="-d $(find experiments_launch)/rviz_cfg/rviz_cfg.rviz"/> 
 
 <!-- Robot Model -->
 <include file="$(find p2os_urdf)/launch/pioneer3dx_urdf.launch"/>
 
 <!-- Play sounds -->
 <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/> 
-
-
 
 
 </launch>

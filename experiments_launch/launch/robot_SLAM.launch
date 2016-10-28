@@ -1,6 +1,7 @@
 <launch>
+
 <!-- Launch file for use on robot computer. Runs the nodes on robot -->
-  
+
 <!-- RosAria pioneer drivers -->
 <node pkg="rosaria" type="RosAria" name="RosAria" >
   <param name="port" value="/dev/ttyUSB0" />
@@ -31,19 +32,14 @@
 <!-- args ="x y z qx qy qz frame_id child_frame_id period_in_ms" -->
 <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.20 0 0.20 0 0 0 /base_link /base_laser 25" />
 
-<!-- MAP server to load the predefined map -->
-  <arg name="map_file" default="$(find experiments_launch)/world/map_perfect.yaml" />
-
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" >
-    <remap from="/map" to="/map" />
-  </node>
 
 <!-- Navigation stuff / move_base -->
 <include file="$(find experiments_launch)/launch/move_base.launch"/>
 <!--include file="$(find experiments_launch)/launch/move_base_optimal.launch"/-->
 
-<!-- AMCL -->
-<include file="$(find experiments_launch)/launch/amcl.launch"/>
+  
+<!-- Gmapping SLAM -->
+<include file="$(find experiments_launch)/launch/slam_gmapping.launch"/>
 
 <!-- usb_cam -->
 <include file="$(find experiments_launch)/launch/usb_cam.launch"/>
