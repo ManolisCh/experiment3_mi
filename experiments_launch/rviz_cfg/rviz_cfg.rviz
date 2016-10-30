@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Map1
+        - /Odometry1
         - /Camera1
       Splitter Ratio: 0.510067
     Tree Height: 214
@@ -13,6 +14,7 @@ Panels:
   - Class: rviz/Tool Properties
     Expanded:
       - /2D Nav Goal1
+      - /2D Pose Estimate1
     Name: Tool Properties
     Splitter Ratio: 0.588679
   - Class: rviz/Views
@@ -125,7 +127,7 @@ Visualization Manager:
       Color: 255; 25; 0
       Enabled: true
       Keep: 1
-      Length: 0.4
+      Length: 0.5
       Name: Odometry
       Position Tolerance: 0.1
       Topic: /odom
@@ -220,7 +222,7 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: true
+      Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false
@@ -231,7 +233,7 @@ Visualization Manager:
       Robot Description: robot_description
       TF Prefix: ""
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
     - Alpha: 1
       Buffer Length: 1
@@ -265,10 +267,12 @@ Visualization Manager:
     - Class: rviz/PublishPoint
       Single click: false
       Topic: /clicked_point
+    - Class: rviz/SetInitialPose
+      Topic: initialpose
   Value: true
   Views:
     Current:
-      Angle: -1.565
+      Angle: 0.0299998
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
@@ -277,11 +281,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 59.1587
+      Scale: 30.6871
       Target Frame: map
       Value: TopDownOrtho (rviz)
-      X: 0.210724
-      Y: 0.00542328
+      X: 4.53611
+      Y: 11.3295
     Saved:
       - Angle: 4.32501
         Class: rviz/TopDownOrtho
