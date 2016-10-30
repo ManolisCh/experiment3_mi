@@ -22,7 +22,7 @@ obstacles_laser:
     laser: {sensor frame: base_laser, data_type:  LaserScan, topic: scan_final, clearing: true, marking: true}
 
 inflation:
-    inflation_radius: 0.4
+    inflation_radius: 0.55
 
 
 #scan: {sensor frame: base_laser, data_type: LaserScan, topic: scan_final, expected_update_rate: 0.4, marking: true, clearing: true, observation_persistence: 0.2, #raytrace_range: 6.0}
