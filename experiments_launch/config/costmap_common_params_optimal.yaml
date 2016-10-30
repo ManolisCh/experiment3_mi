@@ -4,7 +4,7 @@ robot_base_frame: base_link
 
 #transform_tolerance: 0.2
 
-obstacle_range: 3 #maximum range sensor reading that will result in an obstacle being put into the costma(meters)
+obstacle_range: 6 #maximum range sensor reading that will result in an obstacle being put into the costma(meters)
 raytrace_range: 20 #range in meters at which to raytrace out obstacles from the map using sensor data. This can be over-ridden on a per-sensor basis.
 
 footprint: [ [0.22, 0.21], [0.22, -0.21], [-0.23, -0.21], [-0.23, 0.21] ]
@@ -22,7 +22,7 @@ obstacles_laser:
     laser: {sensor frame: base_laser, data_type:  LaserScan, topic: scan, clearing: true, marking: true}
 
 inflation:
-    inflation_radius: 0.4
+    inflation_radius: 0.55
 
 
 #scan: {sensor frame: base_laser, data_type: LaserScan, topic: scan_final, expected_update_rate: 0.4, marking: true, clearing: true, observation_persistence: 0.2, #raytrace_range: 6.0}
