@@ -14,7 +14,7 @@
     <rosparam file="$(find experiments_launch)/config/costmap_common_params_optimal.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find experiments_launch)/config/costmap_common_params_optimal.yaml" command="load" ns="local_costmap" />
 
-    <rosparam file="$(find experiments_launch)/config/global_costmap_params.yaml.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find experiments_launch)/config/global_costmap_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find experiments_launch)/config/global_costmap_params.yaml" command="load" ns="global_costmap" />
 
     <rosparam file="$(find experiments_launch)/config/base_local_planner_params.yaml" command="load" />

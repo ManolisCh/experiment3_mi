@@ -27,8 +27,8 @@ TrajectoryPlannerROS:
   holonomic_robot: false
 
   #Set the tolerance on achieving a goal. With bad localazation put hight tolerence.
-  xy_goal_tolerance: 0.1
-  yaw_goal_tolerance: 0.08 
+  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 0.09 
 
   #Forward Simulation Parameters
   #We'll configure how long and with what granularity we'll forward simulate trajectories
