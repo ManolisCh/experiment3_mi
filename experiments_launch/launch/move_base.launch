@@ -9,8 +9,8 @@
      <remap from="/cmd_vel" to="/navigation/cmd_vel" />
     <!--param name="NavfnROS/default_tolerance" value="0"/-->
 
-    <!--param name="base_global_planner" value="navfn/NavfnROS"/-->
-    <param name="base_global_planner" value="global_planner/GlobalPlanner"/> 
+    <param name="base_global_planner" value="navfn/NavfnROS"/>
+    <!--param name="base_global_planner" value="global_planner/GlobalPlanner"/--> 
     <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/> 
     <!--param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/-->  
 
