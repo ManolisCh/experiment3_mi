@@ -29,12 +29,10 @@
                 /tf
                 /tf_static
 		/trajectory	
-		/cam_compress/image/compressed
-		/cam_compress/image/compressed/parameter_descriptions
- 		/cam_compress/image/compressed/parameter_updates
+	        /usb_cam/image_raw/compressed
+                /usb_cam/image_raw/compressed/parameter_descriptions
+                /usb_cam/image_raw/compressed/parameter_updates
                 /control_mode
-		/noise_reset
-                /noise_active
 		/secondary_task/ended
 		/secondary_task/started
                 /experiment_started
@@ -80,6 +78,7 @@
    		/move_base/local_costmap/obstacle_layer_footprint/parameter_descriptions
    		/move_base/local_costmap/obstacle_layer/parameter_descriptions
    		/move_base/global_costmap/parameter_descriptions
+                /move_base/local_costmap/footprint
    		/move_base/result
  		/move_base/cancel
 		/move_base_simple/goal
