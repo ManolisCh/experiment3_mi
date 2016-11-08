@@ -16,6 +16,8 @@
 #include "std_msgs/Int8.h"
 #include "std_msgs/Float64.h"
 #include <actionlib_msgs/GoalID.h>
+#include <actionlib_msgs/GoalStatusArray.h>
+#include <actionlib_msgs/GoalStatus.h>
 
 #include <fl/Headers.h>
 
@@ -30,16 +32,17 @@ private:
     void robotVelOptimalCallback(const geometry_msgs::Twist::ConstPtr& msg);
     void robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg);
     void computeCostCallback(const ros::TimerEvent&);
+    void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& goalResult);
 
     int loa_, number_timesteps_error_ , count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_  ;
-    bool valid_loa_;
+    bool valid_loa_, mi_active_;
     double error_sum_, error_average_, velocity_sum_, vel_error_average_,  a_,vel_error_ , vel_error_threshold_, decision_;
     std_msgs::Bool loa_change_, loa_changed_msg_;
     std_msgs::Float64 error_average_msg_, vel_average_msg_;
     std_msgs::Int8 ai_switch_count_msg_;
 
     ros::NodeHandle n_;
-    ros::Subscriber loa_sub_ ,vel_robot_sub_ , vel_robot_optimal_sub_;
+    ros::Subscriber loa_sub_ ,vel_robot_sub_ , vel_robot_optimal_sub_, sub_goal_status_;
     ros::Publisher loa_pub_, loa_change_pub_, vel_error_pub_, vel_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
     ros::Timer compute_cost_;
 
@@ -70,6 +73,7 @@ ControlDataLogger::ControlDataLogger(fl::Engine* engine)
     vel_error_average_pub_ = n_.advertise<std_msgs::Float64>("/vel_error_average", 1);
     ai_switch_count_pub_ = n_.advertise<std_msgs::Int8>("/ai_switch_count", 1);
     loa_changed_pub_ = n_.advertise<std_msgs::Bool>("/loa_has_changed", 1);
+    sub_goal_status_ = n_.subscribe<actionlib_msgs::GoalStatusArray>("/move_base_optimal/status", 1, &ControlDataLogger::goalResultCallBack,this);
 
     loa_sub_ = n_.subscribe("/control_mode", 5, &ControlDataLogger::loaCallback, this); // the current LOA
     vel_robot_sub_ = n_.subscribe("/cmd_vel", 5 , &ControlDataLogger::robotVelCallback, this); // current velocity of the robot.
@@ -81,6 +85,47 @@ ControlDataLogger::ControlDataLogger(fl::Engine* engine)
     engine_ = engine;
     FL_LOG("Fuzzy engine created");
 
+}
+
+// takes the goal result/status from move_base_optimal
+void ControlDataLogger::goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& msg)
+{
+
+    if (!msg->status_list.empty())
+    {
+        actionlib_msgs::GoalStatus goalStatus;
+        goalStatus = msg->status_list[0];
+
+
+        if (goalStatus.status == 1)
+        {
+            ROS_INFO("active goal in progress");
+            mi_active_ = 1;
+        }
+
+        else if (goalStatus.status == 3)
+        {
+            ROS_INFO("robot moved succefuly to goal");
+            mi_active_ = 0;
+        }
+
+        else if (goalStatus.status == 2 )
+        {
+            ROS_INFO("Goal was cancelled");
+            mi_active_ = 0;
+        }
+
+        else if (goalStatus.status == 4 )
+        {
+            ROS_INFO("Goal was aborded");
+            mi_active_ = 0;
+
+        }
+
+        else {
+            ROS_INFO("What happened? Status Something else?? Check /move_base_optimal/status for code denoting status");
+        }
+    }
 }
 
 void ControlDataLogger::loaCallback(const std_msgs::Int8::ConstPtr& msg)
@@ -142,75 +187,79 @@ void ControlDataLogger::robotVelOptimalCallback(const geometry_msgs::Twist::Cons
 // Where magic happens, it computes the cost, judging to switch LAO
 void ControlDataLogger::computeCostCallback(const ros::TimerEvent&)
 {
-    vel_error_ = cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x;
-    vel_error_ = fabs(vel_error_);
 
-    if (vel_error_ > 0.1)   //bounds error
-    {vel_error_ = 0.1; }
-
-    // calculates the moving average initialization for velocity
-    if (count_timesteps_vel_ <= number_timesteps_vel_)
+    if (mi_active_ = 1)
     {
-        velocity_sum_ += cmdvel_robot_.linear.x;
-        vel_error_average_ = velocity_sum_ / number_timesteps_vel_;
-        count_timesteps_vel_++;
-    }
+        vel_error_ = cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x;
+        vel_error_ = fabs(vel_error_);
 
-    // calculates exponential moving average for current velocity
-    else if (count_timesteps_vel_ > number_timesteps_vel_)
-    {
-        vel_error_average_ = a_ * cmdvel_robot_.linear.x + (1-a_) * vel_error_average_;
-        engine_->setInputValue("speed", vel_error_average_);
-    }
+        if (vel_error_ > 0.1)   //bounds error
+        {vel_error_ = 0.1; }
 
-    // calculates the average error used to initialize exponential moving average
-    if (count_timesteps_error_ <= number_timesteps_error_)
-    {
-        error_sum_ += vel_error_;
-        error_average_ = error_sum_ / number_timesteps_error_;
-        count_timesteps_error_++;
-    }
-
-
-    // calculates  exponential moving average for error
-    else if (count_timesteps_error_ > number_timesteps_error_)
-    {
-        error_average_ = a_ * vel_error_ + (1-a_) * error_average_;
-        engine_->setInputValue("error", error_average_);
-        engine_->setInputValue("speed", cmdvel_robot_.linear.x);
-        engine_->process();
-        decision_ = engine_->getOutputValue("change_LOA");
-        FL_LOG("error = " << fl::Op::str(error_average_) );
-        FL_LOG("speed = " << fl::Op::str(cmdvel_robot_.linear.x) ) ;
-        FL_LOG("Decision = " << fl::Op::str(engine_->getOutputValue("change_LOA") ) );
-
-
-        if ( (decision_ > vel_error_threshold_) && (loa_change_.data == false) )
+        // calculates the moving average initialization for velocity
+        if (count_timesteps_vel_ <= number_timesteps_vel_)
         {
-            loa_change_.data = true;
-            loa_change_pub_.publish(loa_change_);
-
-            ai_switch_count_msg_.data++ ;
-            ai_switch_count_pub_.publish(ai_switch_count_msg_);
-
-            count_timesteps_error_ = 1; // enables re-initializaion of moving average by reseting count
-            loa_change_.data = false; // resets loa_change flag
-            error_sum_ = 0; // resets sumation of errors for initial estimate
-            ros::Duration(10).sleep();
-        }
-        else if ((decision_ < vel_error_threshold_) && loa_change_.data == true)
-        {
-            loa_change_.data = false;
-            loa_change_pub_.publish(loa_change_);
+            velocity_sum_ += cmdvel_robot_.linear.x;
+            vel_error_average_ = velocity_sum_ / number_timesteps_vel_;
+            count_timesteps_vel_++;
         }
 
+        // calculates exponential moving average for current velocity
+        else if (count_timesteps_vel_ > number_timesteps_vel_)
+        {
+            vel_error_average_ = a_ * cmdvel_robot_.linear.x + (1-a_) * vel_error_average_;
+            engine_->setInputValue("speed", vel_error_average_);
+        }
+
+        // calculates the average error used to initialize exponential moving average
+        if (count_timesteps_error_ <= number_timesteps_error_)
+        {
+            error_sum_ += vel_error_;
+            error_average_ = error_sum_ / number_timesteps_error_;
+            count_timesteps_error_++;
+        }
+
+
+        // calculates  exponential moving average for error
+        else if (count_timesteps_error_ > number_timesteps_error_)
+        {
+            error_average_ = a_ * vel_error_ + (1-a_) * error_average_;
+            engine_->setInputValue("error", error_average_);
+            engine_->setInputValue("speed", cmdvel_robot_.linear.x);
+            engine_->process();
+            decision_ = engine_->getOutputValue("change_LOA");
+            FL_LOG("error = " << fl::Op::str(error_average_) );
+            FL_LOG("speed = " << fl::Op::str(cmdvel_robot_.linear.x) ) ;
+            FL_LOG("Decision = " << fl::Op::str(engine_->getOutputValue("change_LOA") ) );
+
+
+            if ( (decision_ > vel_error_threshold_) && (loa_change_.data == false) )
+            {
+                loa_change_.data = true;
+                loa_change_pub_.publish(loa_change_);
+
+                ai_switch_count_msg_.data++ ;
+                ai_switch_count_pub_.publish(ai_switch_count_msg_);
+
+                count_timesteps_error_ = 1; // enables re-initializaion of moving average by reseting count
+                loa_change_.data = false; // resets loa_change flag
+                error_sum_ = 0; // resets sumation of errors for initial estimate
+                ros::Duration(10).sleep();
+            }
+            else if ((decision_ < vel_error_threshold_) && loa_change_.data == true)
+            {
+                loa_change_.data = false;
+                loa_change_pub_.publish(loa_change_);
+            }
+
+        }
+
+        error_average_msg_.data = error_average_;
+        vel_error_pub_.publish(error_average_msg_);
+
+        vel_average_msg_.data = vel_error_average_;
+        vel_error_average_pub_.publish(vel_average_msg_);
     }
-
-    error_average_msg_.data = error_average_;
-    vel_error_pub_.publish(error_average_msg_);
-
-    vel_average_msg_.data = vel_error_average_;
-    vel_error_average_pub_.publish(vel_average_msg_);
 
 }
 

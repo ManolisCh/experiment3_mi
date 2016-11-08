@@ -4,7 +4,8 @@
 <param name="/move_base/conservative_reset_dist" type="double" value="15"/-->
 
 <node pkg="move_base" type="move_base" respawn="true" name="move_base_optimal" output="screen">
-     <remap from="/cmd_vel" to="/cmd_vel_optimal" />
+     <remap from="/cmd_vel" to="/cmd_vel_optimal" /> 
+     <remap from="/move_base/status" to="/move_base_optimal/status" />
   
     <param name="base_global_planner" value="navfn/NavfnROS"/>
     <!--param name="base_global_planner" value="global_planner/GlobalPlanner"/--> 
