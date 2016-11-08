@@ -124,6 +124,7 @@ void ControlDataLogger::goalResultCallBack(const actionlib_msgs::GoalStatusArray
 
         else {
             ROS_INFO("What happened? Status Something else?? Check /move_base_optimal/status for code denoting status");
+            mi_active_ = 0;
         }
     }
 }
