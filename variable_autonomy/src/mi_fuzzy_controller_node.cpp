@@ -189,7 +189,7 @@ void ControlDataLogger::robotVelOptimalCallback(const geometry_msgs::Twist::Cons
 void ControlDataLogger::computeCostCallback(const ros::TimerEvent&)
 {
 
-    if (mi_active_ = 1)
+    if (mi_active_ == 1)
     {
         vel_error_ = cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x;
         vel_error_ = fabs(vel_error_);
