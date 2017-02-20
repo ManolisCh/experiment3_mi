@@ -1,5 +1,5 @@
 # experiment3_mi
-repo for the third experiment using MI
+Repository for the Mixed-Inititive experiments.
 
 # Installing fuzzylite cpp library 
 
@@ -29,3 +29,17 @@ $ sudo make install
 ```
 
 6) the library should work
+
+# Running simulated experiment
+
+1) Run MORSE simulation via the morse_arena.py in experiments_launch->world
+
+2) run on ROS the morse_arena.launch file in launch directory
+
+# Running real world experiment
+
+1) run on ROS the robot_nav.launch file on the robot. This will run all the neccesery nodes to control the robot via HI, teleop, automy.
+
+2) run on ROS the operator.launch file on the OCU computer.. This will run all the nodes to control the robot from the OCU (joystick needed).
+
+3) run on ROS the mi_control.launch file on the robot. This will enable the MI control to run on the robot.
